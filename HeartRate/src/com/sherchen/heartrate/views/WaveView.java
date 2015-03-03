@@ -35,7 +35,7 @@ public class WaveView extends View implements LinearEvaluator.EvaluatorListener,
         if(DEBUG) android.util.Log.v(LOG_TAG, msg);
     }
 
-    private static final long WAIT_TIME_TRANS_PATH = 400;//ms
+    private static final long DURATION_DRAW_WAVE = 600;
 
     private static final int WAVE_PEAK_LEFT_HEIGHT = 1;
 
@@ -74,7 +74,7 @@ public class WaveView extends View implements LinearEvaluator.EvaluatorListener,
             new int[]{4, 0, 6, 6},
             new int[]{5, 4, 9, 6},
             new int[]{7, 5, 0, 9},
-            new int[]{8, 7, 6, 0}
+            new int[]{WIDTH_TOTAL_WEIGHTS, 7, 6, 0}
     };
 
     //draw the line when the heartrate is not gotten.
@@ -107,18 +107,18 @@ public class WaveView extends View implements LinearEvaluator.EvaluatorListener,
     private Paint m_PeakPaint;
 
     private Random m_EmulateRan;
-    private int[] m_EmulateHeartRate = new int[]{
-            0, 49, 0,
-            55, 0, 68,
-            0, 66, 0,
-            75
-    };
 //    private int[] m_EmulateHeartRate = new int[]{
-//            35, 49, 46,
-//            55, 88, 68,
-//            35, 66, 67,
+//            0, 49, 0,
+//            55, 0, 68,
+//            0, 66, 0,
 //            75
 //    };
+    private int[] m_EmulateHeartRate = new int[]{
+            35, 49, 46,
+            55, 88, 68,
+            35, 66, 67,
+            75
+    };
 
 //    private int[] m_EmulateHeartRate = new int[]{
 //            0, 0, 0,
@@ -148,8 +148,15 @@ public class WaveView extends View implements LinearEvaluator.EvaluatorListener,
 
     public void startPaint(final long duration, final long interval){
         initWave();
+        float extra = interval - DURATION_DRAW_WAVE;
+        long tmp = interval;
+        if(extra <= 200){
+        	tmp = DURATION_DRAW_WAVE + 200;
+        }
+        final long newInterval = tmp;
         m_StartTime = System.currentTimeMillis();
-        m_Timer = new CountDownTimer(duration, interval) {
+        animatorCount = 0;
+        m_Timer = new CountDownTimer(duration, newInterval) {
             @Override
             public void onTick(long millisUntilFinished) {
 //            	disable hardware test
@@ -163,11 +170,12 @@ public class WaveView extends View implements LinearEvaluator.EvaluatorListener,
                     m_TrickListener.onPainterTrick(value);
                 }
                 m_AllEntries.add(0, value);
-                if(interval > WAIT_TIME_TRANS_PATH){
-                    startWave(value, interval - WAIT_TIME_TRANS_PATH);
-                }else{
-                    startWave(value, 0);
-                }
+//                if(interval > WAIT_TIME_TRANS_PATH){
+//                    startWave(value, interval - WAIT_TIME_TRANS_PATH);
+                    startWave(value, DURATION_DRAW_WAVE);
+//                }else{
+//                    startWave(value, 0);
+//                }
             }
 
             @Override
@@ -192,16 +200,21 @@ public class WaveView extends View implements LinearEvaluator.EvaluatorListener,
         doAnimation(value, duration);
     }
 
+    private int animatorCount = 0;
+    
     private void doAnimation(int value, long duration){
+    	animatorCount ++;
         if(value == 0){
             Animator animator = getLineAnimator(m_LineObjects, duration);
             animator.addListener(this);
             animator.start();
+            debug("the animatorCount is " + animatorCount + " & value is 0");
         }else{
             AnimatorSet set = new AnimatorSet();
             List<Animator> peakAnim = getPeakAnimator(duration);
             set.playSequentially(peakAnim);
             set.start();
+            debug("the animatorCount is " + animatorCount + " & value is " + value);
         }
     }
 
@@ -374,17 +387,16 @@ public class WaveView extends View implements LinearEvaluator.EvaluatorListener,
     
     @Override
     protected void onDraw(Canvas canvas) {
-        canvas.drawPath(m_WavePath, m_PeakPaint);
+    	canvas.save();
+    	final Path path = m_WavePath;
+        canvas.drawPath(path, m_PeakPaint);
+        canvas.restore();
+        super.onDraw(canvas);
     }
 
     @Override
     public void onEvalutor(final float x, final float y) {
 		m_WavePath.lineTo(x, y);
-		if(isAnimationFinishing){
-//    		m_WavePath.transform(m_Matrix);
-			m_WavePath.offset(m_CellWidth, 0);
-    		isAnimationFinishing = false;
-    	}
 		invalidate();
     }
 
@@ -396,7 +408,9 @@ public class WaveView extends View implements LinearEvaluator.EvaluatorListener,
     @Override
     public void onAnimationEnd(Animator animation) {
 		isAnimationFinishing = true;
-		debug("The duration of animation is " + animation.getDuration());
+		m_WavePath.transform(m_Matrix);
+		invalidate();
+		//debug("The duration of animation is " + animation.getDuration());
     }
 
     @Override
@@ -408,4 +422,12 @@ public class WaveView extends View implements LinearEvaluator.EvaluatorListener,
     public void onAnimationRepeat(Animator animation) {
 
     }
+
+	/* (non-Javadoc)
+	 * @see com.sherchen.heartrate.views.animator.LinearEvaluator.EvaluatorListener#onEvalutorFinished()
+	 */
+	@Override
+	public void onEvalutorFinished() {
+		
+	}
 }

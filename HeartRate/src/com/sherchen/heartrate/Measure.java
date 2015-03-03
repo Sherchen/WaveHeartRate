@@ -22,8 +22,8 @@ import com.todddavies.components.progressbar.ProgressWheel;
 public class Measure extends Activity implements View.OnClickListener {
 //	disable hardware test
 //    private static final int MEASURE_DURATION = 120;//s
-    private static final float MEASURE_DURATION = 120f;//s
-    private static final float MEASURE_INTERVAL = 0.8f;//s
+    private static final float MEASURE_DURATION = 15f;//s
+    private static final float MEASURE_INTERVAL = 1.5f;//s
     private static final int ONE_SECOND = 1000;//ms
 
     private static final int MEASURE_STATE_START = 0;

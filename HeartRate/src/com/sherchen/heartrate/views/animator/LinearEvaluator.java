@@ -31,6 +31,8 @@ public class LinearEvaluator implements TypeEvaluator<Number> {
 
     public interface EvaluatorListener{
         void onEvalutor(float x, float y);
+        
+        void onEvalutorFinished();
     }
 
     public void addListener(EvaluatorListener listener){
@@ -59,7 +61,10 @@ public class LinearEvaluator implements TypeEvaluator<Number> {
         float xCurrent = EvaluateUtil.getEvaluate(fraction, start, end);
         float yCurrent = getY(xCurrent, start, end);
         for(EvaluatorListener listener : m_Listeners){
-            listener.onEvalutor(xCurrent, yCurrent);
+        	listener.onEvalutor(xCurrent, yCurrent);
+        	if(fraction == 1.0f){
+        		listener.onEvalutorFinished();
+        	}
         }
         return xCurrent;
     }
