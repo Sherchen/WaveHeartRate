@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--Copy from MPChartLib, please not edit it manually-->
+    <eat-comment />
+
+    <color name="fresh_1">#FFFFB3</color>
+    <color name="fresh_2">#94FF85</color>
+    <color name="fresh_3">#75FFC2</color>
+    <color name="fresh_4">#8FDEFF</color>
+    <color name="fresh_5">#B3B3FF</color>
+
+    <color name="mono_1">#042D42</color>
+    <color name="mono_2">#0B84C2</color>
+    <color name="mono_3">#075075</color>
+    <color name="mono_4">#57BEF2</color>
+    <color name="mono_5">#326E8C</color>
+
+    <color name="liberty_1">#CFF8F6</color>
+    <color name="liberty_2">#94D4D4</color>
+    <color name="liberty_3">#88B4BB</color>
+    <color name="liberty_4">#76AEAF</color>
+    <color name="liberty_5">#2A6D82</color>
+
+    <color name="colorful_1">#C12552</color>
+    <color name="colorful_2">#FF6600</color>
+    <color name="colorful_3">#F5C700</color>
+    <color name="colorful_4">#6A961F</color>
+    <color name="colorful_5">#008885</color>
+
+    <color name="greens_1">#55FC70</color>
+    <color name="greens_2">#62E24C</color>
+    <color name="greens_3">#ACF960</color>
+    <color name="greens_4">#CBE24C</color>
+    <color name="greens_5">#FCF355</color>
+
+    <color name="joyful_1">#D9508A</color>
+    <color name="joyful_2">#FE9507</color>
+    <color name="joyful_3">#FEF778</color>
+    <color name="joyful_4">#6AA786</color>
+    <color name="joyful_5">#35C2D1</color>
+    <!--Copy from MPChartLib, please not edit it manually-->
+    <eat-comment />
+
+<!--Our configuration-->
+    <eat-comment />
+
+    <color name="bar_fill_color">#00a8ff</color>
+    <color name="measure_progress_bar_color">#00aeff</color>
+    <color name="measure_progress_rim_color">@android:color/white</color>
+
+    <color name="user_indicator_page_color">#FF000000</color>
+    <color name="user_indicator_fill_color">#FFFFFFFF</color>
+</resources>

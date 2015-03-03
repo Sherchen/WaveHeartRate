@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/ll_bar_history"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="vertical"
+        >
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="@dimen/history_list_item_minHeight"
+            android:background="@drawable/history_item_bg"
+            android:gravity="center"
+            android:textSize="@dimen/history_title_text_size"
+            style="@style/HeartRate"
+            android:text="@string/history_title"
+            />
+
+
+        <com.github.mikephil.charting.BarChart
+            android:id="@+id/bc_history"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
+            />
+
+</LinearLayout>

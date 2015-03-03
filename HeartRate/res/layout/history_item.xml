@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:padding="@dimen/history_item_padding"
+              android:minHeight="@dimen/history_list_item_minHeight"
+              android:background="@drawable/history_item_bg"
+              android:orientation="horizontal"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:gravity="center_vertical"
+    >
+
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv_time_history_item"
+        android:layout_weight="1"
+        android:textSize="@dimen/history_item_time_text_size"
+        style="@style/HeartRate"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv_rate_history_item"
+        android:textSize="@dimen/history_item_rate_text_size"
+        android:textColor="@android:color/white"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv_unit_history_item"
+        android:textSize="@dimen/history_item_unit_text_size"
+        style="@style/HeartRate"
+        android:text="@string/heartrate_unit"
+        />
+</LinearLayout>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/com.malata.base"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:padding="@dimen/history_padding"
+    android:background="@drawable/ic_history_bg"
+    >
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/history_pager"
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clickable="true"
+        />
+
+    <com.sherchen.heartrate.viewpagerindicator.CirclePageIndicator
+        android:id="@+id/history_indicator"
+        android:layout_marginLeft="@dimen/user_indicator_padding_left"
+        android:layout_marginTop="@dimen/user_indicator_padding_top"
+        android:layout_marginRight="@dimen/user_indicator_padding_right"
+        android:layout_marginBottom="@dimen/user_indicator_padding_bottom"
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        app:vpiRadius="@dimen/user_indicator_size"
+        app:vpiStrokeWidth="0dp"
+        app:vpiFillColor="@color/user_indicator_fill_color"
+        app:vpiPageColor="@color/user_indicator_page_color"
+        />
+</LinearLayout>

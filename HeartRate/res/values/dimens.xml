@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+<!-- The height and width,margin,padding dimension-->
+    <eat-comment />
+
+    <dimen name="measure_progress_bar_width">9dp</dimen>
+    <dimen name="measure_progress_rim_width">9dp</dimen>
+    <dimen name="measure_progress_margin">22dp</dimen>
+
+    <dimen name="measure_btn_toggle_height">67dp</dimen>
+    <!--<dimen name="btn_history_margin_top">15dp</dimen>-->
+    <!--<dimen name="btn_history_margin_left">15dp</dimen>-->
+    <dimen name="measure_btn_history_padding">22dp</dimen>
+
+    <dimen name="measure_label_margin_bottom">38dp</dimen>
+    <dimen name="measure_label_margin_right">6dp</dimen>
+
+    <dimen name="measure_done_time_margin_bottom">10dp</dimen>
+
+    <dimen name="measure_heart_width">50dp</dimen>
+    <dimen name="measure_heart_height">50dp</dimen>
+
+    <dimen name="history_list_divider_height">10dp</dimen>
+    <dimen name="history_list_item_minHeight">52dp</dimen>
+    <dimen name="history_list_margin_top">10dp</dimen>
+    <dimen name="history_padding">6dp</dimen>
+    <dimen name="history_item_padding">8dp</dimen>
+
+    <dimen name="user_indicator_size">4dp</dimen>
+    <dimen name="user_indicator_padding_left">0dp</dimen>
+    <dimen name="user_indicator_padding_top">4dp</dimen>
+    <dimen name="user_indicator_padding_right">0dp</dimen>
+    <dimen name="user_indicator_padding_bottom">8dp</dimen>
+
+
+<!--The text size-->
+    <eat-comment />
+
+    <dimen name="measure_btn_text_size">24sp</dimen>
+    <dimen name="measure_lable_text_size">78sp</dimen>
+    <dimen name="measure_done_time_text_size">21sp</dimen>
+
+    <dimen name="history_title_text_size">30sp</dimen>
+    <dimen name="history_item_time_text_size">16sp</dimen>
+    <dimen name="history_item_rate_text_size">35sp</dimen>
+    <dimen name="history_item_unit_text_size">20sp</dimen>
+
+
+
+</resources>
