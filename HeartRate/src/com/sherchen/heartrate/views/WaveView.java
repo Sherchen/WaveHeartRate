@@ -1,6 +1,5 @@
 package com.sherchen.heartrate.views;
 
-import android.R.anim;
 import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.ValueAnimator;
@@ -8,12 +7,9 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import android.graphics.Path;
-import android.graphics.Path.FillType;
-import android.graphics.PathEffect;
 import android.os.CountDownTimer;
 import android.util.AttributeSet;
 import android.view.View;
@@ -42,12 +38,15 @@ public class WaveView extends View implements LinearEvaluator.EvaluatorListener,
 
     private static final int WAVE_PEAK_LEFT_HEIGHT = 1;
 
-    //The max peek(contains the wave line) that will be shown
+    /**The max peek(contains the wave line) that will be shown*/
     private static final int MAX_VALID_ENTRIES = 10;
 
+    /**the view width as 9 weights*/
     private static final int WIDTH_TOTAL_WEIGHTS = 9;
+    /**the view height as 9 weights*/
     private static final int HEIGHT_TOTAL_WEIGHTS = 9;
 
+    //The start x and y of wave
     private float m_StartX, m_StartY;
     
     
@@ -98,40 +97,16 @@ public class WaveView extends View implements LinearEvaluator.EvaluatorListener,
     private List<float[]> m_PeakObjects;
     private float[] m_LineObjects;
 
-    private List<Integer> m_AllEntries;
 
     private CountDownTimer m_Timer;
 
-    private long m_StartTime;
-    private int m_Average;
 
     private Paint m_PeakPaint;
-    
     private Paint m_EmptyPaint = new Paint();
 
-    private Random m_EmulateRan;
-    private int[] m_EmulateHeartRate = new int[]{
-            0, 49, 0,
-            55, 0, 68,
-            0, 66, 0,
-            75
-    };
-//    private int[] m_EmulateHeartRate = new int[]{
-//            35, 49, 46,
-//            55, 88, 68,
-//            35, 66, 67,
-//            75
-//    };
-
-//    private int[] m_EmulateHeartRate = new int[]{
-//            0, 0, 0,
-//            0, 0, 0,
-//            0, 0, 0,
-//            0
-//    };
-
     private Path m_WavePath = new Path();
-    private Matrix m_Matrix;
+    
+    private WaveViewController m_InnerController;
 
     public WaveView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -140,8 +115,7 @@ public class WaveView extends View implements LinearEvaluator.EvaluatorListener,
     }
 
     private void setValues(){
-        m_AllEntries = new ArrayList<Integer>();
-        m_EmulateRan = new Random();
+        m_InnerController = new WaveViewController();
 
         m_PeakPaint = new Paint();
         m_PeakPaint.setColor(Color.WHITE);
@@ -158,7 +132,7 @@ public class WaveView extends View implements LinearEvaluator.EvaluatorListener,
         	tmp = DURATION_DRAW_WAVE + 200;
         }
         final long newInterval = tmp;
-        m_StartTime = System.currentTimeMillis();
+        m_InnerController.saveStartPaintTime();
         m_Timer = new CountDownTimer(duration, newInterval) {
             @Override
             public void onTick(long millisUntilFinished) {
@@ -168,20 +142,20 @@ public class WaveView extends View implements LinearEvaluator.EvaluatorListener,
 //                    value = m_TrickListener.getPainterValue();
 //                }
 //            	emulate test
-                int value = getEmulateHeartRate();
+                int value = m_InnerController.getEmulateHeartRate();
                 if(m_TrickListener != null){
                     m_TrickListener.onPainterTrick(value);
                 }
                 if(getVisibility() != View.VISIBLE){
                 	debug("The view is hidden by others");
                 }
-                m_AllEntries.add(0, value);
+                m_InnerController.addPaintValue(value);
                 startWave(value, DURATION_DRAW_WAVE);
             }
 
             @Override
             public void onFinish() {
-                m_Average = calculateAverage();
+            	m_InnerController.computeAverage();
                 if(m_TrickListener != null){
                     m_TrickListener.onPainterFinished();
                 }
@@ -194,7 +168,7 @@ public class WaveView extends View implements LinearEvaluator.EvaluatorListener,
     	debug("initWave");
     	m_WavePath = new Path();
         m_WavePath.moveTo(m_StartX, m_StartY);
-        m_AllEntries.clear();
+        m_InnerController.clearHistory();
         invalidate();
     }
 
@@ -256,9 +230,6 @@ public class WaveView extends View implements LinearEvaluator.EvaluatorListener,
         m_TrickListener = listener;
     }
 
-    private int getEmulateHeartRate(){
-        return m_EmulateHeartRate[m_EmulateRan.nextInt(10)];
-    }
 
     public void stopPaint(){
     	if(m_Timer != null){
@@ -268,29 +239,13 @@ public class WaveView extends View implements LinearEvaluator.EvaluatorListener,
     	recycleWaveBitmap();
     }
 
-    private int calculateAverage(){
-        int size = m_AllEntries.size();
-        int validSize = 0;
-        int validTotal = 0;
-        for(int i=0;i<size;i++){
-            if(m_AllEntries.get(i) != 0){
-                validSize++;
-                validTotal += m_AllEntries.get(i);
-            }
-        }
-        if(validSize != 0){
-            return validTotal / validSize;
-        }else{
-            return -1;
-        }
-    }
 
     public int getAverage(){
-        return m_Average;
+        return m_InnerController.getAverage();
     }
 
     public long getMeasureStartTime(){
-        return m_StartTime;
+        return m_InnerController.getMeasureStartTime();
     }
 
     @Override
@@ -307,24 +262,17 @@ public class WaveView extends View implements LinearEvaluator.EvaluatorListener,
             final int validHeight = wHeight;
             float cellWidth = validWidth / MAX_VALID_ENTRIES;
             float cellHeight = validHeight;
-            
             m_CellWidth = cellWidth;
-            
-            m_Matrix = new Matrix();
-            m_Matrix.setTranslate(cellWidth, 0);
             caculateByWeights(cellWidth, cellHeight - WAVE_PEAK_LEFT_HEIGHT);
         }
     }
 
-    private float getFractionOfWeight(int weight, int totalWeights){
-        return (float) weight / totalWeights;
-    }
 
     private void caculateByWeights(float cellWidth, float cellHeight){
         m_PeakObjects = new ArrayList<float[]>();
         int size = m_WavePeak_Weight.length;
         for(int i= size - 1;i>=0;i--){
-            float[] wave = retreiveWaveLine(m_WavePeak_Weight[i], cellWidth, cellHeight);
+            float[] wave = m_InnerController.retreiveWaveLine(m_WavePeak_Weight[i], cellWidth, cellHeight);
             //debugWaveLine(wave);
             if(i == size - 1){
                 m_StartX = wave[0];
@@ -333,7 +281,7 @@ public class WaveView extends View implements LinearEvaluator.EvaluatorListener,
 
             m_PeakObjects.add(wave);
         }
-        m_LineObjects = retreiveWaveLine(m_WaveLine_Weight, cellWidth, cellHeight);
+        m_LineObjects = m_InnerController.retreiveWaveLine(m_WaveLine_Weight, cellWidth, cellHeight);
         //debugWaveLine(m_LineObjects);
     }
     
@@ -348,36 +296,8 @@ public class WaveView extends View implements LinearEvaluator.EvaluatorListener,
         );
     }
     
-    private float[] retreiveWaveLine(int[] m_WavePeak_Weight, float cellWidth, float cellHeight){
-    	int size = m_WavePeak_Weight.length;
-    	if(size != 4){
-    		throw new RuntimeException("wrong size of array");
-    	}
-    	
-    	float startX, startY, endX = 0f, endY, fractionFromX, fractionToX, fractionFromY, fractionToY;
-        int weightFromX, weightToX, weightFromY, weightToY;
-        
-        weightFromX = m_WavePeak_Weight[0];
-        weightToX =   m_WavePeak_Weight[1];
-        weightFromY = m_WavePeak_Weight[2];
-        weightToY   = m_WavePeak_Weight[3];
-        
-        fractionFromX = getFractionOfWeight(weightFromX, WIDTH_TOTAL_WEIGHTS);
-        fractionToX   = getFractionOfWeight(weightToX, WIDTH_TOTAL_WEIGHTS);
-        startX = cellWidth * fractionFromX;
-        endX   = cellWidth * fractionToX;
-        
-        fractionFromY = getFractionOfWeight(weightFromY, HEIGHT_TOTAL_WEIGHTS);
-        fractionToY = getFractionOfWeight(weightToY, HEIGHT_TOTAL_WEIGHTS);
-        startY = cellHeight * fractionFromY;
-        endY   = cellHeight * fractionToY;
-        
-        return new float[]{startX, startY, endX, endY, fractionFromX - fractionToX};
-    }
-
     @Override
     protected void onDraw(Canvas canvas) {
-//    	canvas.drawPath(m_WavePath, m_PeakPaint);
     	if(waveBitmap != null){
     		canvas.drawBitmap(waveBitmap, 0, 0, m_EmptyPaint);
     	}
@@ -390,7 +310,7 @@ public class WaveView extends View implements LinearEvaluator.EvaluatorListener,
     	debug("onEvalutor--- x is " + x + " & y is " + y);
 		m_WavePath.lineTo(x, y);
 		recycleWaveBitmap();
-		waveBitmap = getBitmap(m_WavePath);
+		waveBitmap = getBitmap(m_WavePath, m_PeakPaint);
 		invalidate();
     }
 
@@ -422,10 +342,119 @@ public class WaveView extends View implements LinearEvaluator.EvaluatorListener,
     }
     
     
-    private Bitmap getBitmap(Path path){
+    private Bitmap getBitmap(Path path, Paint m_PeakPaint){
     	Bitmap bitmap = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
     	Canvas canvas = new Canvas(bitmap);
     	canvas.drawPath(path, m_PeakPaint);
     	return bitmap;
+    }
+    
+    private static class WaveViewController{
+    	
+    	private List<Integer> m_AllEntries;
+        private long m_StartTime;
+        private int m_Average;
+        private Random m_EmulateRan;
+        private int[] m_EmulateHeartRate = new int[]{
+                0, 49, 0,
+                55, 0, 68,
+                0, 66, 0,
+                75
+        };
+        
+//      private int[] m_EmulateHeartRate = new int[]{
+//      35, 49, 46,
+//      55, 88, 68,
+//      35, 66, 67,
+//      75
+//};
+
+//private int[] m_EmulateHeartRate = new int[]{
+//      0, 0, 0,
+//      0, 0, 0,
+//      0, 0, 0,
+//      0
+//};
+        
+        private WaveViewController(){
+        	m_AllEntries = new ArrayList<Integer>();
+            m_EmulateRan = new Random();
+        }
+    	
+    	public long getMeasureStartTime() {
+			return m_StartTime;
+		}
+
+		public int getAverage() {
+    		return m_Average;
+		}
+
+		public int getEmulateHeartRate() {
+    		return m_EmulateHeartRate[m_EmulateRan.nextInt(10)];
+		}
+
+		public void clearHistory() {
+    		m_AllEntries.clear();
+		}
+
+		public void computeAverage() {
+    		m_Average = calculateAverage();
+		}
+    	
+    	private int calculateAverage(){
+            int size = m_AllEntries.size();
+            int validSize = 0;
+            int validTotal = 0;
+            for(int i=0;i<size;i++){
+                if(m_AllEntries.get(i) != 0){
+                    validSize++;
+                    validTotal += m_AllEntries.get(i);
+                }
+            }
+            if(validSize != 0){
+                return validTotal / validSize;
+            }else{
+                return -1;
+            }
+        }
+
+		public void addPaintValue(int value) {
+    		m_AllEntries.add(0, value);
+		}
+
+		public void saveStartPaintTime() {
+    		m_StartTime = System.currentTimeMillis();
+		}
+
+		private float[] retreiveWaveLine(int[] m_WavePeak_Weight, float cellWidth, float cellHeight){
+        	int size = m_WavePeak_Weight.length;
+        	if(size != 4){
+        		throw new RuntimeException("wrong size of array");
+        	}
+        	
+        	float startX, startY, endX = 0f, endY, fractionFromX, fractionToX, fractionFromY, fractionToY;
+            int weightFromX, weightToX, weightFromY, weightToY;
+            
+            weightFromX = m_WavePeak_Weight[0];
+            weightToX =   m_WavePeak_Weight[1];
+            weightFromY = m_WavePeak_Weight[2];
+            weightToY   = m_WavePeak_Weight[3];
+            
+            fractionFromX = getFractionOfWeight(weightFromX, WIDTH_TOTAL_WEIGHTS);
+            fractionToX   = getFractionOfWeight(weightToX, WIDTH_TOTAL_WEIGHTS);
+            startX = cellWidth * fractionFromX;
+            endX   = cellWidth * fractionToX;
+            
+            fractionFromY = getFractionOfWeight(weightFromY, HEIGHT_TOTAL_WEIGHTS);
+            fractionToY = getFractionOfWeight(weightToY, HEIGHT_TOTAL_WEIGHTS);
+            startY = cellHeight * fractionFromY;
+            endY   = cellHeight * fractionToY;
+            
+            return new float[]{startX, startY, endX, endY, fractionFromX - fractionToX};
+        }
+    	
+    	private float getFractionOfWeight(int weight, int totalWeights){
+            return (float) weight / totalWeights;
+        }
     }
 }
