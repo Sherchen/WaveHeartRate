@@ -19,20 +19,18 @@ public class LinearEvaluator implements TypeEvaluator<Number> {
         m_Translate = translate;
     }
 
-    private float m_YMax;
-    private float m_YMin;
+    private float m_YStart;
+    private float m_YEnd;
 
-    public LinearEvaluator(float yMin, float yMax){
-        m_YMax = yMax;
-        m_YMin = yMin;
+    public LinearEvaluator(float yStart, float yEnd){
+        m_YStart = yStart;
+        m_YEnd = yEnd;
     }
 
     private ArrayList<EvaluatorListener> m_Listeners = new ArrayList<EvaluatorListener>();
 
     public interface EvaluatorListener{
         void onEvalutor(float x, float y);
-        
-        void onEvalutorFinished();
     }
 
     public void addListener(EvaluatorListener listener){
@@ -62,14 +60,13 @@ public class LinearEvaluator implements TypeEvaluator<Number> {
         float yCurrent = getY(xCurrent, start, end);
         for(EvaluatorListener listener : m_Listeners){
         	listener.onEvalutor(xCurrent, yCurrent);
-        	if(fraction == 1.0f){
-        		listener.onEvalutorFinished();
-        	}
         }
         return xCurrent;
     }
 
     private float getY(float current, float start, float end){
-        return (current - start) * (m_YMax - m_YMin) / (end - start) + m_YMin;
+//        return (current - start) * (m_YStart - m_YEnd) / (end - start) + m_YEnd;
+        
+        return m_YStart - (start - current) * (m_YStart - m_YEnd) / (start - end);
     }
 }

@@ -67,7 +67,7 @@
         android:layout_alignEnd="@+id/iv_line_start"
         android:layout_above="@+id/iv_line_start"
         android:layout_marginBottom="-11dp"
-        android:visibility="invisible"
+        android:visibility="visible"
         />
 
     <ImageView
