@@ -6,7 +6,7 @@ import android.view.View;
 /**
  * The description of use:The View holder for Adapter
  * <br />
- * Create Time:2014-1-20 下午05:12:31
+ * Create Time:2014-1-20 05:12:31
  * @author Dave
  *	
  *

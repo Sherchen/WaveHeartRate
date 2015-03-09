@@ -1,11 +1,8 @@
 package com.sherchen.heartrate.views.animator;
 
-import android.animation.FloatEvaluator;
 import android.animation.TypeEvaluator;
 
 import java.util.ArrayList;
-import java.util.Observable;
-import java.util.Observer;
 
 /**
  * The description of use:
